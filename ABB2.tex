@@ -1,0 +1,789 @@
+% -*- TeX:SI -*-
+% slovene sub-mode for spell check
+
+%\Large\textbf
+\chapter{{Industrijski robot ABB IRB 1600-7/145}}\label{Pog:ABB}
+
+\vspace{-3.35cm}
+
+\begin{mdframed}[backgroundcolor=green!20, shadow=true,roundcorner=8pt]
+\vspace{-0.35cm}
+\section{Cilji vaje}
+\begin{itemize}
+\item spoznavanje z uporabniškim vmesnikom robota ABB IRB1600
+\item razlièni naèini premikanja robotskega mehanizma
+\item programiranje v RAPID programskem jeziku robota ABB
+\item definiranje novega orodja na vrhu robota
+\item definiranje uporabniškega koordinatnega sistema, ki pripada obdelovancu ter preverjanje smiselnosti te uporabe
+\item uporaba I/O enot
+\item spoznavanje razlik med premikanjem robota v notranjih in zunanjih koordinatah (linearni in krožni gibi)
+\item naèrtanje programa s toèkami definiranimi glede na realni obdelovanec v koordinatnem sistemu obdelovanca
+
+\end{itemize}
+\end{mdframed}
+
+
+\section{Uvod}
+
+\begin{figure}[h]
+%\begin{minipage}[c]{0.8\columnwidth}
+\centering\label{abb1600_conf}
+\resizebox{9cm}{!}{\includegraphics[draft=false]{irb1600_configuration.eps}}
+\caption{\label{abb1600_conf}Konfiguracija robota IRB 1600-7/145}
+\end{figure}
+
+Industrijski robot ABB IRB 1600-7/145 je robot s
+šestimi prostostnimi stopnjami gibanja antropomorfne
+konfiguracije. Robot je namenjen izvajanju razliènih operacij v
+industrijskem okolju, kot so npr. manipulacija objektov, varjenje,
+lakiranje ali nanašanje lepila. Sposoben je prenašati breme 7
+$kg$. Odlikuje ga konfiguracija, ki omogoèa zavrtitev nazaj.
+Njegove lastnosti so predstavljene v spodnji tabeli, konfiguracija na sliki \ref{abb1600_conf}
+in delovni prostor na sliki \ref{abb1600_working_range}.
+
+
+
+\vspace{0.5cm}
+\begin{center}
+\begin{tabular}{|lr|c|}
+\hline   Tip &  & ABB IRB 1600-7/145 \\
+\hline Horizontalni Doseg & & 1.45 $m$ \\
+\hline Nosilnost  & &  \\
+nominalna/maksimalna & & $7/10$ $kg$ \\
+\hline Ponovljivost pozicioniranja& & $\pm 0.05 mm$ \\
+\hline Maksimalna hitrost &  Os 1 & 180 $^0/s$ \\
+     & Os 2 & $180$ $^0/s$ \\
+     & Os 3 & $180$ $^0/s$ \\
+     & Os 4 & $320$ $^0/s$ \\
+     & Os 5 & $400$ $^0/s$ \\
+     & Os 6 & $460$ $^0/s$ \\
+\hline Delovni prostor &  Os 1 & $+180/-180$ $^0$ \\
+     & Os 2 & $+150/-90$ $^0$ \\
+     & Os 3 & $+65/-245$ $^0$ \\
+     & Os 4 & $+200/-200$ $^0$ \\
+     & Os 5 & $+115/-115$ $^0$ \\
+     & Os 6 & $+400/-400$ $^0$ \\
+\hline   Teža &  & $250 $ $kg$ \\
+\hline   I/O linije &  & 28 elektriènih,  \\
+ &  & (10 napajalnih) , 2 pnevmatski \\
+\hline   Zavore &  & vseh šest osi \\
+\hline Delovni pogoji &  temperatura & $5-45 ^oC $ \\
+     & vlažnost & max  $95$ \% RH brez kondensa \\
+     & vibracije & manj kot $4.5 \; m/s^2$ (0.5G) \\
+\hline
+\end{tabular}
+\end{center} \vspace{1cm}
+
+
+\begin{figure}[h]
+%\begin{minipage}[c]{0.8\columnwidth}
+\centering
+\resizebox{10cm}{!}{\includegraphics[draft=false]{abb1600_working_range.eps}}
+%\end{minipage}
+\caption{\label{abb1600_working_range}Delovno
+obmoèje robota IRB 1600-7/145}
+\end{figure}
+
+
+
+\clearpage
+\section{Robotski krmilnik IRC5}
+
+Krmilnik za vodenje robota ABB IRB 1600-7/145 je zgrajen na osnovi
+industrijskega osebnega raèunalnika, ki za vodenje posameznih osi
+uporablja PCI regulatorske karte. Zasnovan je modularno z loèenim
+moènostnim in krmilniškim delom. Modularna zasnova omogoèa vodenje
+veè robotov hkrati z enim samim krmilnikom. \vspace{1cm}
+
+\begin{figure}[h]
+\centering
+\resizebox{5cm}{!}{\includegraphics[draft=false]{irc5_in_pendant.eps}}
+\caption{\label{krmilnik}Robotski krmilnik IRC5 }
+\end{figure}
+
+\begin{figure}[h!]
+\begin{minipage}[c]{0.3\columnwidth}
+\flushleft
+\resizebox{6cm}{!}{\includegraphics{operaterski_panel.eps}}
+\end{minipage}
+\begin{minipage}[c]{0.6\columnwidth}
+\begin{description}
+    \item[A] \vspace*{-0.2cm} Glavno stikalo
+    \item[B] \vspace*{-0.2cm} Tipka za izklop v sili
+    \item[C] \vspace*{-0.2cm} MOTORJI AKTIVNI (svetlobni signal)
+    \begin{itemize}
+        \item \vspace*{-0.2cm} stalno gori: pripravljen za izvajanje programa
+        \item \vspace*{-0.2cm} hitro utripanje: robot ni kalibriran
+        \item \vspace*{-0.2cm} poèasno utripanje: izklop varnostnega stikala
+    \end{itemize}
+    \item[D] Izbira naèina delovanja (kljuè) \\
+        \begin{minipage}[c]{0.8\columnwidth}
+            \flushleft
+        \psfrag{A}[Bl][l][1.0][0]{Avtomatski naèin delovanja}
+        \psfrag{B}[Bl][l][1.0][0]{Roèni naèin vodenja \newline z zmanjšano hitrostjo}
+        \psfrag{C}[Bl][][1.0][0]{Roèni naèin vodenja \newline z maksimalno hitrostjo}
+        \includegraphics[width=0.25\columnwidth]{nacini_delovanja.eps}
+        \end{minipage}
+    \item[E] \vspace*{-0.2cm} LED signalizacija varnostnih stikal
+    \item[F] \vspace*{-0.2cm} Ethernet in USB prikljuèek
+\end{description}
+\end{minipage}
+\caption{\label{operaterski_panel} Operaterski panel na krmilniku}
+\end{figure}
+
+
+
+
+\comment{
+
+\begin{figure}[h]
+\flushleft \psfrag{A}[Bl][l][1.0][0]{Avtomatski naèin delovanja}
+\psfrag{B}[Bl][l][1.0][0]{Roèni naèin vodenja z zmanjšano hitrostjo
+(maks. 250 $mm/s$)} \psfrag{C}[Bl][][1.0][0]{Roèni naèin vodenja z
+maksimalno hitrostjo}
+\includegraphics[width=0.25\columnwidth]{nacini_delovanja.eps}
+  \caption{\label{fig} Naèini delovanja glede na položaj kljuèa}
+\end{figure}
+}
+
+
+
+ \clearpage
+\section{Roèna uèna naprava \emph{FlexPendant}}
+
+Kot uporabniški vmesnik za roèno vodenje robota, uèenje toèk in razvoj
+robotskega programa služi roèna uèna naprava imenovana \emph{FlexPendant}.
+Napravo odlikuje zaslon obèutljiv na dotik ter krmilna palica s tremi
+prostostnimi stopnjami gibanja. Na sliki \ref{flekspendant0} je predstavljena
+roèna uèna naprava za vodenje robota ABB IRB 1600. Slika \ref{flekspendant1}
+prikazuje delovno okno roène uène naprave, slika \ref{flekspendant2} pa
+izhodišèni meni \emph{ABB}.
+
+\begin{figure}[h]
+\begin{minipage}[c]{0.5\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_2.eps}
+\end{minipage}
+\begin{minipage}[c]{0.5\columnwidth}
+\centering
+\includegraphics[width=0.95\columnwidth]{flexpendant_7.eps}
+\end{minipage}
+\begin{minipage}[c]{0.5\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_8.eps}
+\end{minipage}
+\begin{minipage}[c]{0.5\columnwidth}
+\hspace{1cm}
+\begin{description}
+    \item[A] Konektor
+    \item[B] Zaslon obèutljiv na dotik (ang. Touch Screen)
+    \item[C] Tipka za izklop v sili
+    \item[D] Omogoèitvena tipka (stisk do polovice!)
+    \item[E] Krmilna palica za roèno vodenje
+    \item[F] ‘‘Hold-to-Run’’ gumba
+    \item[G] Uporabniško programabilne tipke
+    \item[H] Tipke za testno izvajanje programa: START, KORAK NAPREJ,
+    KORAK NAZAJ, STOP
+\end{description}
+\end{minipage}
+\caption{\label{flekspendant0}Roèna uèna naprava \emph{FlexPendant}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{touch_screen.eps}
+\end{minipage}
+\begin{minipage}[c]{0.35\columnwidth}
+\begin{description}
+    \item[A] ABB meni (programi, nastavitve in aplikacije)
+    \item[B] Statusna vrstica (informacije o sistemu in sporoèilih)
+    \item[C] Osrednji prikaz aplikacij
+    \item[D] Tipka za zapiranje trenutnega pogleda ali aplikacije
+    \item[E] Orodna vrstica za prikaz odprtih pogledov ali aplikacij
+    \item[F] Hitri meni - bližnjica do roènega vodenja in nastavitev
+\end{description}
+\end{minipage}
+\caption{\label{flekspendant1}Delovno okno roène uène naprave
+\emph{FlexPendant}}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.65\columnwidth]{flexpendant_3.eps}
+\caption{\label{flekspendant2}Izhodišèni meni $ABB$}
+\end{figure}
+
+
+
+
+\clearpage
+\section{Roèno vodenje robota}
+
+Roèno vodenje je naèin vodenja robota s pomoèjo krmilne palice. Robot lahko
+roèno vodimo glede na položaje sklepov ali glede na razliène koordinatne
+sisteme. Izbrano delovanje gibanja in/ali koordinatnega sistema doloèa naèin
+premikanja robota. V linearnem naèinu gibanja se toèka središèa orodja (TCP -
+tool center point) premika po ravni èrti v prostoru, oz. v smeri osi izbranega
+koordinatnega sistema. V naèinu gibanja ``os-za-osjo'' pa se premika doloèena
+os robota. Ker ima krmilna palica tri prostostne stopnje gibanja, lahko
+naenkrat spreminjamo pozicijo le treh koordinat. Obstajata dva tipa roènega
+naèina vodenja: obièajni roèni naèin, reèemo mu tudi \emph{roèni naèin pri
+zmanjšani hitrosti}, in \emph{roèni naèin pri polni hitrosti}. V roènem naèinu
+pri polni hitrosti, se robot lahko premika pri nastavljeni hitrosti, vendar
+samo pod roènim nadzorom. Pritisniti je potrebno omogoèitveno tipko in
+hold-to-run gumb, da vkljuèite motorje robota. Roèni naèin pri polni hitrosti,
+v katerega preklopimo s kljuèem glede na sliko \ref{operaterski_panel},
+uporabljamo za konèni test programa. V oknu za roèno vodenje (ang. Jogging),
+do katerega dostopamo preko glavnega menija \emph{ABB}, so prikazani parametri
+roènega vodenja:
+\begin{figure}[h]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_9.eps}
+\end{minipage}
+\vspace{0.5cm}
+\begin{minipage}[c]{0.35\columnwidth}
+\begin{description}
+    \item[A] Izbrana enota - robot
+    \item[B] Popolna natanènost
+    \item[C] Izbran naèin gibanja
+    \item[D] Izbran koordinatni sistem
+\end{description}
+\end{minipage}
+\begin{minipage}[c]{0.45\columnwidth}
+\begin{description}
+    \item[E] Izbrano orodje
+    \item[F] Izbran ``work-object''
+    \item[G] Izbrano breme
+    \item[H] Izbrana zapora usmerjanja \newline krmilne palice
+\end{description}
+\end{minipage}
+\begin{minipage}[c]{0.45\columnwidth}
+\begin{description}
+    \item[I] Izbira inkrementov premika
+    \item[J] Izpis pozicij posameznih osi
+    \item[K] Format izpisa pozicij
+    \item[L] Prikaz smeri krmilne palice
+\end{description}
+\end{minipage}
+\caption{\label{flekspendant9} Meni za roèno vodenje
+\emph{Jogging}}
+\end{figure}
+
+\begin{figure}[h]
+\begin{minipage}[c]{0.57\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_4.eps}
+\end{minipage}
+\begin{minipage}[c]{0.25\columnwidth}
+Dostop do okna:
+\begin{description}
+    \item[1] Hitri meni
+    \item[2] Roèno vodenje
+\end{description}
+\end{minipage}
+\begin{minipage}[t]{0.45\columnwidth}
+\begin{description}
+    \item[A-D] Izbira koordinatnega sistema:
+    \begin{description}
+        \item[A] World - vodenje glede na referenèni koordinatni
+        sistem (enak kot bazni)
+        \item[B] Base - vodenje glede na bazni koordinatni
+        sistem
+        \item[C] Tool - vodenje glede na koordinatni
+        sistem orodja
+        \item[D] Work Obj - vodenje glede na uporabniški koordinatni
+        sistem (ang. work object)
+    \end{description}
+\end{description}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}[t]{0.45\columnwidth}
+\begin{description}
+    \item[E-H] Izbira naèina roènega vodenja:
+    \begin{description}
+        \item[E] Axis 1-3 - vodenje osi sklepov 1, 2 in 3
+        \item[F] Axis 4-6 - vodenje osi sklepov 4, 5 in 6
+        \item[G] Linear - vodenje vrha robota vzdolž osi izbranega
+        koordinatnega sistema
+        \item[H] Reorient - vrtenje vrha robota okrog osi izbranega
+        koordinatnega sistema
+    \end{description}
+\end{description}
+\end{minipage}
+\caption{\label{flekspendant}V oknu za izbiro naèina gibanja roènega
+vodenja izbiramo koordinate vzdolž katerih vodimo robot s pomoèjo
+krmilne palice}
+\end{figure}
+
+
+\begin{figure}[h]
+\begin{minipage}[c]{0.59\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_5.eps}
+\end{minipage}
+\begin{minipage}[c]{0.35\columnwidth}
+Dostop do okna:
+\begin{description}
+    \item[1] Hitri meni
+    \item[2] Nastavitev koraka premika
+\end{description}
+\end{minipage}
+\caption{\label{flekspendant3}V oknu za izbiro koraka premika izbiramo med
+zveznim gibanjem in postopnim premikanjem za natanèno pozicioniranje (v
+majhnih, srednjih ali velikih korakih)}
+\end{figure}
+
+\clearpage
+
+\section{Programski urejevalnik - ``Program editor''}
+
+\vspace{0.3cm}
+\begin{mdframed}[backgroundcolor=yellow!80, shadow=true,roundcorner=8pt]
+%\begin{tikzpicture}
+%    \node [fill=red,rounded corners=5pt] {
+%    \begin{minipage}{0.93\textwidth}
+        \vspace{0.1cm}
+        \center
+        \large
+\textcolor[rgb]{0.00,0.00,0.00}{\large \textbf{Preden zaènete z delom ustvarite nov program in ga shranite pod imenom, ki ga boste zlahka našli.}} \\ %
+        \vspace{0.1cm}
+%    \end{minipage}
+%    };
+%\end{tikzpicture}
+\end{mdframed}
+\vspace{0.3cm}
+
+\begin{figure}[h!]
+\begin{minipage}[c]{0.7\columnwidth}
+\includegraphics[width=1.0\columnwidth]{flexpendant_15.eps}
+\end{minipage}
+\begin{minipage}[c]{0.3\columnwidth}
+\begin{description}
+    \item[Dostop:]  \vspace*{-0.2cm}\emph{ABB > Program Editor > Tasks and Programs > File }
+    \item[Kreiranje programa]\vspace*{-0.2cm}  \emph{File > New Program}
+    \item[Nalaganje programa]\vspace*{-0.2cm}   \emph{File > Load Program}
+    \item[Shranjevanje programa]\vspace*{-0.2cm}  \emph{File > Save Program As}
+    \item[Preimenovanje programa]\vspace*{-0.2cm}  \emph{File > Rename Program}
+    \item[Brisanje programa]\vspace*{-0.2cm}  \emph{File > Delete Program}
+\end{description}
+\end{minipage}
+\caption{\label{workobject_points} Osnovne operacije programskega
+urejevalnika}
+\end{figure}
+
+
+
+\section{Kalibracija orodja}
+
+Orodje je objekt, ki ga namestimo na vrh robota. Orodje je potrebno
+definirati s toèko TCP (Tool Center Point), ki podaja lego vrha
+orodja glede na zadnji segment robota. Koordinatni sistem orodja je
+definiran glede na pozicijo, orientacijo in geometrijo orodja.
+Gibanje glede na koordinatni sistem orodja uporabljamo kadar robot
+izvaja operacije navijanja, vrtanja ali gibanja po krožnici.  Slika
+\ref{irb1600_with_tool} predstavlja koordinatni sistem zadnjega
+segmenta robota in koordinatni sistem orodja.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\columnwidth]{irb1600_with_tool.eps}
+  \caption{\label{irb1600_with_tool} Koordinatni sistem na vrhu orodja}
+\end{figure}
+
+\subsection{Kreiranje orodja}
+
+\begin{figure}[h]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_10.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[korak 1] Dostop: \emph{ABB>Jogging>Tool>New}
+    \item[korak 2] Name: izberi ime orodja
+    \item[korak 3] Scope: doseg naj bo globalni (za vse module)
+    \item[korak 4] Storage type: izberi persistent
+    \item[korak 5] ostalo nespremenjeno
+\end{description}
+\end{minipage}
+\caption{\label{flekspendant4} Kreiranje orodja}
+\end{figure}
+
+
+\subsection{Nastavljanje parametrov orodja}
+
+\begin{figure}[h!]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_11.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[korak 1] Dostop: \emph{ABB>Jogging>Tool>Edit>Change Value}
+    \item[korak 2] Nastavite maso orodja na 1 $kg$
+    \item[korak 3] Nastavite x komponento cog-ja na 1 $mm$
+\end{description}
+\end{minipage}
+\caption{\label{flekspendant5} Spreminjanje parametrov orodja }
+\end{figure}
+
+\clearpage
+\subsection{Definiranje orientacije orodja}
+
+\begin{figure}[h!]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_12.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[korak 1] Dostop: \emph{ABB>Jogging>Tool>Edit>Define}
+    \item[korak 2] Izberite želeno metodo: \\ TCP \& Z
+    \item[korak 3] Izberite število približevalnih toèk: 4
+    \item[korak 4] Roèno vodite robot v isto pozicijo s štirimi razliènimi
+    orientacijami (glej sliko \ref{orientacije_tool}). Vsako potrdite z \emph{Modify Position}.
+    \item[korak 5] Roèno doloèite toèko \emph{Elongator Point Z}, ki doloèa smer $z$ osi. Toèko doloèite tako, da orodje odmaknete od kalibracijske špice za kakšnih 10 $cm$, \textbf{pri èemer mora biti orodje usmerjeno proti kalibracijski špici}.  Potrdite z \emph{Modify Position}.
+    \item[korak 6] Doloèitev orientacije zakljuèite s potrditvijo $OK$
+\end{description}
+\end{minipage}
+\caption{\label{flekspendant6} Doloèanje orientacije orodja }
+\end{figure}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\columnwidth]{orientacije_tool2.eps}
+  \caption{\label{orientacije_tool} Doloèanje orientacije orodja s štirimi razliènimi legami in toèko za doloèitev Z osi orodja.}
+\end{figure}
+
+\subsection{Preverite, èe je orodje pravilno kalibrirano}
+
+\begin{figure}[h!]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_20.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[korak 1] Dostop: \emph{Hitri meni>Roèno vodenje}
+    \item[korak 2] Izberite koordinatni sistem vodenja: Tool - orodje
+    \item[korak 3] Izberite naèin roènega vodenja: Reorient - vrtenje okoli vrha orodja 
+    \item[korak 4] Roèno vodite robota s krmilno roèico. Èe je bilo ordje kalibrirano pravilno, se bo robot premikal tako, da bo vrh orodja vedno v isti toèki, robot pa se bo vrtel okoli vrha orodja.
+\end{description}
+\end{minipage}
+\caption{\label{flekspendant20} Izbira roènega vodenja za vrtenje robota okoli vrha orodja }
+\end{figure}
+
+
+\section{Uporabniški koordinatni sistem - ``Work object''}
+
+``Work object'' je koordinatni sistem s posebnimi lastnostmi, ki so mu
+prirejene. Veèinoma se uporablja za poenostavitev programiranja, ko urejamo
+programe, zaradi prenastavitev doloèenih opravil, procesov objektov, itd.
+``Work objecti'' so velikokrat ustvarjeni za poenostavitev premikanja vzdolž
+površin objektov. Lahko jih ustvarimo veè, zato je potrebno vedno izbrati
+glede na katerega izvajamo gibanje. Aktiven koordinatni sistem izberemo v
+meniju \emph{ABB>Jogging>Workobject}.
+
+\subsection{Kreiranje uporabniškega koordinatnega sistema}
+
+\begin{figure}[h]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_13.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[korak 1] Dostop: \emph{ABB>Jogging>Workobject>New}
+    \item[korak 2] Name: izberi ime koordinatnega sistem
+    \item[korak 3] Scope: doseg naj bo globalni (za vse module)
+    \item[korak 4] Storage type: izberi persistent
+    \item[korak 5] ostalo nespremenjeno
+\end{description}
+\end{minipage}
+\caption{\label{flekspendant7} Kreiranje uporabniškega koordinatnega sistema }
+\end{figure}
+
+\newpage
+
+\subsection{Definiranje lege uporabniškega koordinatnega sistema}
+
+
+\begin{figure}[h!]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_14.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[korak 1] Dostop: \emph{ABB>Jogging>Workobject \newline >Edit>Define}
+    \item[korak 2] Izberite želeno metodo: User method: 3 points
+    \item[korak 3] Roèno vodite robot v doloèitvene toèke
+    (glej sliko \ref{workobject_points}). Vsako potrdite z \emph{Modify Position}.
+    \item[korak 4] Doloèitev orientacije zakljuèite s potrditvijo $OK$
+\end{description}
+\end{minipage}
+\caption{\label{workobject_points} Doloèanje lege uporabniškega koordinatnega
+sistema }
+\end{figure}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\columnwidth]{workobject_points.eps}
+  \caption{\label{orientacije_tool} Definiranje lege uporabniškega koordinatnega sistema s tremi toèkami}
+\end{figure}
+
+\begin{figure}[h]
+\centering\label{fig:kalibSpice}
+\includegraphics[width=1.0\columnwidth]{alu_blok_frame.eps}
+  \caption{ Uporabniška koordinatna sistema na modelu aluminijastega bloka. Toèka 1 je X1, toèka 2 je X2 in toèka 3 je Y1.}
+\end{figure}
+
+\clearpage
+\section{Programski urejevalnik - ``Program editor''}
+
+\begin{figure}[h!]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_15.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[Dostop:]  \vspace*{-0.2cm}\emph{ABB > Program Editor > Tasks and Programs > File }
+    \item[Kreiranje programa]\vspace*{-0.2cm}  \emph{File > New Program}
+    \item[Nalaganje programa]\vspace*{-0.2cm}   \emph{File > Load Program}
+    \item[Shranjevanje programa]\vspace*{-0.2cm}  \emph{File > Save Program As}
+    \item[Preimenovanje programa]\vspace*{-0.2cm}  \emph{File > Rename Program}
+    \item[Brisanje programa]\vspace*{-0.2cm}  \emph{File > Delete Program}
+\end{description}
+\end{minipage}
+\caption{\label{workobject_points} Osnovne operacije programskega
+urejevalnika}
+\end{figure}
+
+\subsection{Vrivanje ukazov}
+\begin{figure}[h!]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_16.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[Dostop:]  \emph{ABB > Program Editor > Tasks and Programs > Add Instruction }
+    \item[Nabor ukazov] izbiranje pod opcijo \emph{Common}
+    \item[Vrivanje ukaza] izbira ikonce ukaza
+\end{description}
+\end{minipage}
+\caption{\label{workobject_points} Vrivanje ukazov}
+\end{figure}
+
+\subsection{Osnovni ukazi za gibanje}
+
+Za programsko vodenje uporabljamo tri osnovne ukaze z razlièno interpolacijo.
+Ukaz \emph{MoveJ} je ukaz pri katerem je izvršen gib v konèno toèko glede na
+interpolacijo v koordinatah posameznih sklepov. Ukaz \emph{MoveL} izvrši
+premik v konèno toèko po premici. Ukaz \emph{MoveC} pa izvrši premik v konèno
+toèko preko vmesne toèke po krožnici.
+\begin{figure}[h]
+\begin{minipage}[c]{0.9\columnwidth}
+\flushleft
+\begin{verbatim}
+MoveJ p10, v1000, z50, tool0;
+\end{verbatim}
+\end{minipage}
+\vspace{15mm}
+\begin{minipage}[c]{0.9\columnwidth}
+\centering
+\includegraphics[width=0.7\columnwidth]{interpolacija_joint.eps}
+\end{minipage}
+\vspace{15mm}
+\begin{minipage}[c]{0.9\columnwidth}
+\flushleft
+\begin{verbatim}
+MoveL p10, v1000, z50, tool0;
+\end{verbatim}
+\end{minipage}
+\vspace{15mm}
+\begin{minipage}[c]{0.9\columnwidth}
+\centering
+\includegraphics[width=0.8\columnwidth]{interpolacija_linear.eps}
+\end{minipage}
+\vspace{15mm}
+\begin{minipage}[c]{0.9\columnwidth}
+\flushleft
+\begin{verbatim}
+MoveC p5, p10, v1000, z50, tool0;
+\end{verbatim}
+\end{minipage}
+\vspace{15mm}
+\begin{minipage}[c]{0.9\columnwidth}
+\centering
+\includegraphics[width=0.6\columnwidth]{interpolacija_circular.eps}
+\end{minipage}
+  \caption{\label{via_tocka} Osnovni naèini gibanja: a) gibanje v koordinatah sklepov, b) gibanje po premici in c) gibanje po krožnici}
+\end{figure}
+
+\clearpage
+
+Trajektorijo gibanja tvori veè vmesnih toèk. V vmesnih toèkah lahko robot
+ izbrano lego dosega toèno ali pa vmesno toèko samo preleti. Na sliki
+\ref{via_tocka} sta predstavljena oba primera. Obmoèje zaokroževanja je
+doloèeno s parametrom $z50$, kjer številka pomeni polmer kroga zaokroževanja v
+$mm$.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\columnwidth]{via_tocka.eps}
+  \caption{\label{via_tocka} Možnost gibanja v vmesnih toèkah}
+\end{figure}
+
+
+\subsection{Uèenje in poimenovanje toèk leg}
+
+V procesu uèenja trajektorije gibanja robota robot roèno vodimo z lege na
+lego. Na želeni legi, ki naj jo robot dosega med izvajanjem programa, v
+program vrinemo programsko vrstico v kateri je trenutna lega robota oznaèena z
+$*$. Èe želimo trenutno lego poimenovati, da jo lahko npr. uporabljamo veèkrat
+v programu, to storimo preko menija \emph{ABB>Program Data>robotarget>New}.
+Nauèene lege je možno tudi urejati.
+\begin{figure}[h!]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_18.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[Dostop:]  \emph{ABB > Program Data > robtarget > }
+    \item[Kreiranje leg] New:
+    \item[Urejanje leg] Edit
+\end{description}
+\end{minipage}
+\caption{\label{} Uèenje in poimenovanje toèk leg}
+\end{figure}
+
+\clearpage
+\subsection{Krmiljenje vhodno/izhodnih linij}
+
+\begin{figure}[h!]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_19.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[Dostop:]  \emph{ABB > Program Editor > Add Instruction > }
+    \item[Vklop digitalnega izhoda] Set
+    \item[Izklop digitalnega izhoda] Reset
+\end{description}
+\end{minipage}
+\caption{\label{} Krmiljenje vhodno/izhodnih linij}
+\end{figure}
+
+
+\subsection{Urejanje programskih vrstic}
+\begin{figure}[h!]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_17.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[Dostop:]  \emph{ABB > Program Editor > Tasks and Programs > Edit }
+    \item[Urejanje vrstic] kopiranje, brisanje, komentiranje vrstic
+    \item[Spreminjanje argumentov ukaza] izbira \emph{Change selected}
+\end{description}
+\end{minipage}
+\caption{\label{} Urejanje programskih vrstic}
+\end{figure}
+
+\clearpage
+
+\subsection{Testiranje programa}
+
+Ko je z roènim vodenjem in vrivanjem vrstic program razvit, ga najprej
+preizkusimo v testnem naèinu. Programske ukaze izvajamo korak po koraku kot to
+prikazuje spodnja slika \ref{testiranje}. Šele, ko je program preizkušen, ga
+izvedemo v avtomatskem naèinu s polno hitrostjo delovanja. V avtomatski naèin
+delovanja preklopimo s kljuèem na operaterskem panelu (glej sliko
+\ref{operaterski_panel}), program pa poženemo s pritiskom tipke >.
+\begin{figure}[h!]
+\begin{minipage}[c]{0.6\columnwidth}
+\includegraphics[width=0.95\columnwidth]{flexpendant_20.eps}
+\end{minipage}
+\begin{minipage}[c]{0.37\columnwidth}
+\begin{description}
+    \item[Programski kazalec na zaèetek]  \emph{PP to Main }
+    \item[Izvajanje po korakih] izbira omogoèitvene tipke ter tipke > $KORAK NAPREJ$
+\end{description}
+\end{minipage}
+\caption{\label{testiranje} Testiranje programa}
+\end{figure}
+
+
+
+\section{Nalaganje in zagon robotskega programa, ki je bil razvit v simulacijskem okolju}
+
+Prenos robotskega programa, ki je bil razvit v simulacijskem okolju, z
+osebnega raèunalnika na realni robotski krmilnik opravite s pomoèjo
+programskega paketa \emph{RobotStudio}. Pod menijem \emph{Online}, ki je
+namenjen komuniciranju z robotskim krmilnikom, aktivirate povezavo s
+krmilnikom preko ikonce \emph{Add Controller}. Do aktivnega krmilnika
+dostopate levo v brskalniku.
+
+\vspace{0.3cm} \noindent Iz okolja \emph{RobotStudio>Online} zahtevajte dostop
+do krmilnika preko \emph{Request Write Access}. Dovoljenje za dostop je
+potrebno potrditi na roèni uèni napravi.
+
+\vspace{0.3cm} \noindent Program, ki je trenutno aktiven v robotskem krmilniku
+se nahaja v direktoriju z imenom RAPID. Program odprete z \emph{DTM>RAPID
+Editor}.
+%Roèno urejanje programa omogoèite s tipko \emph{Enable Edit}.
+Popravke, ki jih opravite v delovnem oknu programa, pa potrdite in s tem
+prenesete v krmilnik z izbiro tipke \emph{Apply Changes (Ctrl+Shift+S)}.
+
+\vspace{0.3cm} \noindent Nov program naložite v krmilnik preko menija
+\emph{Online>Load Program}, kjer izberete ime datoteke .pgf, dodatno pa morate
+naložiti še programski modul in sicer preko menija \emph{Online>Load Modul},
+kjer izberete ime pripadajoèe datoteke .mod.
+
+\vspace{0.3cm} \noindent Prilagoditev koordinatnih sistemov simulacijskega in
+realnega okolja opravite s pomoèjo nove definicije koordinatnega sistema
+objekta, glede na katerega so bile nauèene toèke v simulacijskem okolju.
+Koordinatni sistem oz. Workobject na novo definirate na robotskem krmilniku s
+pomoèjo roène uène naprave:
+\begin{itemize}
+            \item V \emph{Jogging} meniju izberete \emph{Workobject}, ki ga
+            želite popravljati in z dolgim pritiskom izberete meni
+            \emph{Definition}.
+            \item Izberete \emph{User definition} in izberete naèin
+            doloèitve s tremi toèkami (\emph{3 points})
+            \item Robot roèno vodite najprej v izhodišèe
+            koordinatnega sistema, nato v toèko na osi \emph{x} in nato v
+            toèko na osi \emph{y}. Vsako toèko ustrezno potrdite.
+            Po konèani proceduri krmilnik izraèuna lego novega
+            koordinatnega sistema in s tem lego vseh toèk, ki so
+            nauèene glede na ta koordinatni sistem.
+\end{itemize}
+
+
+\section{Izvedba naloge}
+
+Nauèite se osnovnega rokovanja z industrijskim robotom ABB IRB 1600-7/145. Pri
+uvajanju preizkusite:
+\begin{itemize}
+\item\vspace*{-0.25cm} roèno vodenje robota s pomoèjo upravljalne
+palice v razliènih koordinatnih sistemih,
+
+\item\vspace*{-0.25cm} uèenje toèk,
+
+\item\vspace*{-0.25cm} definiranje orodja, ki je pripeto na robot,
+
+\item\vspace*{-0.25cm} ukaze za linerno in krožno gibanje,
+
+\item\vspace*{-0.25cm} krmiljenje vhodno/izhodnih linij.
+\end{itemize}
+
+Za nalogo praktiènega dela razvijte robotski program za izvajanje simuliranega
+nanašanja lepila na aluminijasti blok. Nanašanje izvedite z orodjem, ki je pripeto
+na vrhu robota (glej sliko \ref{fig22}). Za ta namen definirajte varilno
+orodje, uporabniški koordinatni sistem v vogalu nosilne plošèe ter izvedite
+trajektorije gibanja na testnem objektu vzdolž posameznih robov in znotraj
+krožnice.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.60\columnwidth]{irb1600_in_kocka.eps}
+  \caption{\label{fig22} Robotska celica z industrijskim robotom ABB IRB
+1600-7/145 in varilnim orodjem}
+\end{figure}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\columnwidth]{naloga2.eps}
+  \caption{\label{fig23} Simulacija nanašanja lepila z robotsko celico z industrijskim robotom ABB IRB
+1600-7/145: A) definicija uporabniškega koordinatnega sistema, B) trajektorija
+nanašanja lepila}
+\end{figure}
+
+Isto nalogo izvedite s pomoèjo robotskega programa, ki ste ga razvili v
+predhodni nalogi s pomoèjo programskega paketa za robotsko simulacijo
+\emph{ABB RobotStudio}.

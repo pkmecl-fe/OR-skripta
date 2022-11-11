@@ -1,0 +1,187 @@
+\documentclass{kapmono}
+\usepackage[centertags]{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{newlfont}
+\usepackage[utf8]{inputenc} % needed if you have an older TeX distribution
+\usepackage[T1]{fontenc}     % default is 'OT1'
+\usepackage{lmodern}         % recommended
+\usepackage[slovene]{babel}
+\usepackage{monops}
+\usepackage[dvips]{epsfig}
+\usepackage[dvips]{graphics}
+\usepackage[dvips]{graphicx}
+\DeclareGraphicsRule{idps}{eps}{idps}{}
+\usepackage{psfrag,graphicx}
+\usepackage{rotating}
+\usepackage{array}
+\usepackage{supertabular}
+\usepackage{times,mathptm}
+\usepackage{itemsep}
+\usepackage{lgreek}
+\usepackage{amsmath,mathtools}
+\usepackage{booktabs}
+\usepackage[normal]{subfigure}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage[]{mcode}
+\usetikzlibrary{shadows}
+\usepackage{bm}
+%\usepackage{polyglossia}
+%\setmainlanguage{slovenian}
+
+\special{papersize=210mm,297mm} \voffset=-70pt \hoffset=-28.7mm
+%\headsep=0.5cm \evensidemargin=2.cm \oddsidemargin=2.cm
+%\topmargin=2cm
+\textwidth=170mm \textheight=250mm
+
+\graphicspath{{../}{./}{./slike/}{./vaja_nao/}{./slike_RS/}{./slike_ABB/}{./slike_DH/}{./slike_DH/UR5e/}{./slike_epson/Eps/}{./slike_staubli/}{./slike_epson/}{../ABB/}{./safety/slike/}{./slike_yumi/}{./slike_kuka/}{./slike_epson/}{./slike_DH/Fanuc/}{./slike_HC10/}}
+
+
+\hyphenation{bio-me-han-ska bio-me-han-ski re-ha-bi-li-ta-cij-ske
+e-le-ktro-teh-ni-ko pri-kle-nje-nih vsta-ja-nju pa-ra-li-zi-ra-nih
+sku-paj o-hran-ja-nja vsta-ja-njem vsta-ja-nje vsta-ja-nja
+o-cen-je-va-nju o-cen-je-va-nje ro-bot-ska gor-njih o-se-ba
+me-ri-tve ro-bo-ta me-ri-tve te-ra-pi-ji te-ra-pevt-ska
+pa-ra-le-lni gor-njih o-pra-vlje-na o-ce-ni-ti o-se-bne-ga
+kr-mi-lni-ka a-kti-vni eks-pe-ri-men-tu zmanj-se-va-nje
+tran-sfor-ma-cijsko in-fi-ni-ti-zi-mal-ni e-kvi-va-lentne
+pa-ra-le-lni gor-njih o-pra-vlje-na o-ce-ni-ti o-se-bne-ga}
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definicija}[section]
+
+\theoremstyle{plain}
+\newtheorem{teorem}{Teorem}[section]
+
+\setcounter{secnumdepth}{3} %
+\setcounter{tocdepth}{4}
+
+\let\lcitebracket(
+\let\rcitebracket)
+
+\newcommand{\comment}[1]{}
+
+\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
+\newcommand{\tab}[1]{\hspace{.06\textwidth}\rlap{#1}}
+
+\newcommand{\TP}[1]{\textcolor{blue}{#1}}
+\newcommand{\RS}[1]{\textcolor{red}{#1}}
+
+%\bar{}\includeonly{safety}
+
+\begin{document}
+
+
+
+\booktitle[OSNOVE ROBOTIKE] {OSNOVE ROBOTIKE - Priročnik in \\
+navodila za laboratorijske vaje}
+
+\titlepage{%
+\author{Janez Podobnik, Sebastjan \v Slajpah, Peter Kmecl}
+%\authoraffil{Fakulteta za elektrotehniko, Univerza v Ljubljani}
+%\authoraffil{}
+}
+
+\thispagestyle{empty}
+\parindent0cm
+\normalsize {
+\rule{12cm}{0.5pt} \\ %
+%CIP - Kataložni zapis o publikaciji
+%
+%Narodna  in univerzitetna knjižnica, Ljubljana %
+
+\vskip13pt %
+007.52(075.8)(076.5)
+
+\hskip0.7cm   OSNOVE robotike : priro \v cnik in navodila za
+laboratorijske vaje /\\
+\\ Popravljena in dopolnjena izd. - Ljubljana : \\
+Laboratorij za robotiko, 2020   %letnico na prvi strani spremeni v kapmono.cls
+\\ \\
+
+%ISBN 978-961-243-215-7   (Fakulteta za elektrotehniko) \\
+%1. Kamnik,Roman \\
+%263311616
+
+
+%\vskip14pt %
+%XXXXXXXXX
+\vskip5pt %
+\rule{12cm}{0.5pt}
+\vskip10pt %
+Slika na naslovnici:
+
+\hskip0.7cm Irena Podobnik, Ju\v zni otok, olje na platnu, 100 x 150
+cm, 2007
+
+\vskip0.5in
+
+%Copyright © 2014 Založba FE in FRI. All rights reserved.
+%
+%Razmnoževanje (tudi fotokopiranje) dela v celoti ali po delih
+%
+%brez predhodnega dovoljenja Založbe FE in FRI prepovedano.
+
+\vskip0.5in
+
+
+
+%Recenzenta: \\
+%\hskip0.7cm prof. dr. Miloš Žefran, University of Illinois, Chicago, ZDA \\
+%\hskip0.7cm prof. dr. Tatjana Zrimec, The University of New South Wells, Sydney, Avstralija \\
+%\vskip5pt %
+%Založnik: Založba FE in FRI, Ljubljana
+%Izdajatelj: Fakulteta za elektrotehniko, Ljubljana \\
+%Urednik: mag. Peter Šega %
+
+\vskip10pt
+
+%Natisnil: Littera Picta, Tiskarna Pleško d.o.o., Ljubljana \\
+%Naklada: 50 izvodov \\
+%4. popravljena izdaja }
+
+\vskip10pt
+
+Kontakt: \\
+Laboratorij za robotiko
+\\ Fakulteta za elektrotehniko, Univerza v Ljubljana \\
+Tr \v za \v ska c. 25, 1000 Ljubljana, Slovenija \\
+tel: 01 4768 190 \\
+e-mail: janez.podobnik@fe.uni-lj.si
+
+
+
+%Izdajo monografije je finančno podprla Javna agencija za
+%raziskovalno dejavnost Republike Slovenije.
+
+\parindent0.4cm
+
+
+
+\setcounter{page}{5}
+
+\cleardoublepage
+
+
+
+\tableofcontents %\newpage
+
+\include{safety}           % varnost pri delu z roboti
+\include{Matlab}
+\include{RobotStudio3}      % RobotStudio
+\include{Scara3}     % Epson vid
+\include{KUKA3}        
+\include{HC10_rob}
+\include{yumi_OR_online}       
+\include{DH6}             
+\include{or_UR5e_online} 
+
+%
+\bibliographystyle{kapalike}
+%\bibliography{../../../publications/Bibliography/Bibliography}
+\addcontentsline{toc}{chapter}{Literatura}
+\end{document}
+% ------------------------------------------------------------------------

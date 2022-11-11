@@ -1,0 +1,440 @@
+\chapter{Vijačenje z robotom Fanuc CR-7iA}%
+
+
+\begin{mdframed}[backgroundcolor=green!20, shadow=true,roundcorner=8pt]
+\vspace{-0.35cm}
+	
+\section{Cilj vaje}
+	
+Pri tej vaji boste ...
+	
+\end{mdframed}
+
+\section{Sodelovanje človek--robot}
+
+Sodelovanje med človekom in robotom združuje lastnosti obeh akterjev: človeško inteligenco, prilagodljivost in sposobnost rokovanja z nedeterminiranimi materiali ter robotsko vzdržljivost, natančnost in moč. Pri tem je neizogibno, da človek in robot opravljata nalogo v neposredni bližini. Tehnično priporočilo standardu ISO/TS 15066:2016 predpisuje zahteve za različne načine sodelovanja. Pomembna je tudi ocena tveganja celotnega sistema (ta vključuje robota, prijemalo, obdelovanec, periferijo, človeka), s katero identificiramo potencialno nevarne situacije ter rešitve, kako se jim izogniti.
+
+Skupno delovanje človeka in robota lahko razdelimo na tri dele:
+\begin{itemize}
+	\item \textbf{soobstoj} -- robot in delavec sta prisotna v skupnem prostoru, robot je ločen od delavca, ne more priti do kontakta med robotom in delavcem,
+	\item \textbf{kooperacija} -- robot in delavec si delita delovni prostor, naloge izvajata simultano na ločenih objektih, interakcija z robotom prek skupnega delovnega prostora, kjer si izmenjujeta delovne objekte,
+	\item  \textbf{sodelovanje} -- robot in delavec si delita delovni prostor, nalogo izvajata na simultano na skupnem objektu.
+\end{itemize}
+
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=\textwidth]{hc10_sodelovanje.eps}
+	\caption{Primeri različnih načinov sodelovanja človeka in robota}
+	\label{fig:hc10_sodel}
+\end{figure}
+
+
+Za zagotavljanje varnosti operaterja mora imeti robot implementirano vsaj eno izmed štirih kategorij varnosti:
+\begin{itemize}
+	\item \textbf{varnostno nadzorovana ustavitev} -- v primeru nevarne situacije se robot ustavi (motorji so prižgani),
+	\item \textbf{vodenje z roko}  -- operater lahko ročno vodi robota, enostavnejše programiranje in izvajanje aplikacij,
+	\item \textbf{nadzor hitrosti in varnostne razdalje} -- hitrost robota se prilagaja glede na oddaljenost človeka od robota (različne cone hitrosti, bližje kot je operater robotu, manjša je hitrost), potrebni dodatni senzorji (laserski skenerji, svetlobne zavese, ...)
+	\item \textbf{omejitev moči in sile} -- robot deluje z ustrezno močjo, da v primeru nehotenega trka z operaterjem ne pride do poškodbe, ISO/TS 15066:2016 podaja ustrezne sile/pritiske za posamezna področja človeškega telesa, kompromis med hitrostjo in nosilnostjo robota.
+\end{itemize}
+
+\section{Vijačenje z robotom}
+Aplikacija avtomatiziranega vijačenja z robotom je v industriji precej razširjena aplikacija. Na robotu je nameščena vijačnik za vijačenje vijakov. Vijačnik je nadzorovan preko krmilne enota za vijačenje, običajno je potreben še podajalnik vijakov. Z uvajanjem sodelujočih robotov se zato pojavlja tudi potreba po sodelujoči aplikaciji avtomatiziranega vijačenja, kjer se pojavi tudi potreba po vijačnikih, ki so varni za uporabo v bližini človeka. Problematika avtomatiziranega vijačenja s sodelujočim robotom je, da imamo na varnem robotu nevarno orodje. Posledično to pomeni, da mora biti robot ograjen, saj aplikacija ni dovolj varna za sodelovanje s človekom. Glavni nevarnosti sta konica orodja ali vijaka in navor, ki je potreben za vijačenje.
+V industriji je vedno več povpraševanja po avtomatiziranih opravilih, pri katerih bi lahko sodeloval tudi operater, vendar so ta zaradi nevarnih orodij težje izvedljiva. Zelo veliko zanimanje je tudi za varno vijačenje s sodelujočim robotom. Želja je, da bi si lahko robot in operater pri izvedbi naloge delila delovni prostor in po potrebi tudi sodelovala. Potreba je torej po dodatnem varnostnem sistemu, ki bi omogočal varno vijačenje in sodelovanje operaterja z robotom. Operaterju je potrebno fizično omejiti dostop do nevarnih delov, ki so prisotni pri vijačenju. Zaščita mora biti tudi senzorično podprta, da se v primeru kontakta z operaterjem lahko izvede ustavitev sistema.
+
+
+\section{Struktura sistema}
+
+Robotski sistem sestavlja sodelujoči robot Fanuc CR-7iA s krmilnikom Fanuc R-30iB Mate, set za robotsko vijačenje Kolver, varnostna zaščita za sodelujoče vijačenje.  Celotna konfiguracija je predstavljena na sliki \ref{fig:fanuc_sistem}.
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.75\textwidth]{sistem.eps}
+	\caption{Prikaz uporabljenih naprav: 1 - robot Fanuc CR-7iA, 2 - vijačnik Kolver Pluto, 3 - krmilnik vijačnika Kolver, 4 - podajalnik vijakov Kolver, 5 - varnostni mehanizem, 6 - podajalnik orodja, 7 - obdelovanec.}
+	\label{fig:fanuc_sistem}
+\end{figure}
+
+\subsection{Fanuc CR-7iA}
+
+Fanuc CR-7iA robot je sodelujoči robot iz Fanucove družine sodelujočih robotov (slika \ref{fig:fanuc_druzina}). 
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.4\textwidth]{CR_druzina.eps}
+	\caption{Družina Fanuc sodelujočih robotov (CR-4iA, 7iA, 7iA/L)}
+	\label{fig:fanuc_druzina}
+\end{figure}
+
+Robotska roka je antropomorfne oblike s 6 prostostnimi stopnjami. Robot ima doseg $717$ $mm$ in nosilnost $7$ $kg$. V osnovi gre za industrijskega robota Fanucove družine LR Mate, ki je opremljen z dodatnimi senzorji za merjenje sil, ki delujejo na robota, predvsem pa s prenovljenim krmilnikom, ki vsebuje vse potrebne varnostne sklope potrebne za sodelujočega robota. Robot je certificiran v skladu s standardom ISO 10218-1. To pomeni, da lahko človek in robot opravljata naloge v istem delovnem prostoru, oziroma lahko tudi sodelujeta med sabo. Robot se lahko zaradi ustrezne senzorije in vodenja ustavi, ko pride do dotika med človekom in robotom. 
+
+Robot Fanuc je voden s krmilnikom Fanuc R-30iB Plus, ki se nahaja v omarici srednje velikosti. Krmilnik je opremljen z ročno učno enoto iPendant. 
+
+Osnovni podatki robotske roke so podani v tabeli \ref{fig:specifikacije}, slika \ref{fig:delovni_prostor} prikazuje delovni prostor robota, slika \ref{fig:fanuc_osi} pa osi robota.
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=1.0\textwidth]{specifikacije.eps}
+	\caption{Specifikacije družine Fanuc sodelujočih robotov (CR-4iA, 7iA, 7iA/L)}
+	\label{fig:specifikacije}
+\end{figure}
+
+\begin{figure}[!hbt]
+	\centering
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\textwidth]{delovni_prostor.eps}
+		\caption{Delovni prostor robota 7iA.}
+		\label{fig:delovni_prostor}
+    \end{minipage}\hfill
+	\begin{minipage}{0.5\textwidth}
+		\centering
+		\includegraphics[width=1.0\textwidth]{fanuc_osi.eps}
+		\caption{Osi robota 7iA.}
+		\label{fig:fanuc_osi}
+	\end{minipage}
+\end{figure}
+
+\newpage
+
+\subsubsection{Varno delo z robotom}
+
+Robot Fanuc CR-7iA je sodelujoči robot, kar pomeni, da se ob trkih z večjo silo samodejno ustavi, vendar je potrebno biti kljub vsemu previden pri delu z robotom. Robot Fanuc CR-7iA je razvit na podlagi klasičnega industrijskega robota, zato mehansko ni popolnoma prilagojen za inherentno varnost mehanske strukture. Še vedno so na robotu nevarna mesta, ki lahko povzročijo ukleščenje med segmente robota. Slika \ref{fig:uklescenje} prikazuje nevarna mesta za vkleščenje.
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.4\textwidth]{uklescenje.eps}
+	\caption{Možna mesta za ukleščenje med segmente robota.}
+	\label{fig:uklescenje}
+\end{figure}
+
+Tako kot klasični roboti ima robot Fanuc tudi gumb za varnostno ustavitev na ohišju krmilnika in na ročni učni enoti (slika \ref{fig:em_stop}).
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.5\textwidth]{em_stop.eps}
+	\caption{Osi robota 7iA.}
+	\label{fig:em_stop}
+\end{figure}
+
+\subsubsection{Ročna učna enota iPendant}
+
+Učna enota se uporablja za programiranje robota. Ima barvni zaslon občutljiv na dotik, vendar priporočamo uporabo tipk na sami učni enoti. 
+Slika \ref{fig:iPendant} prikazuje učno enoto na kateri so označene glavne skupine tipk:
+
+\begin{itemize}
+	\item Izklop v sili (rdeč okvir).
+	\item Funkcijske tipke F1 do F5 (rumen okvir): najpogosteje se uporabljajo za izbiro gumbov na zaslonu, ki se pojavijo na dnu zaslona.
+	\item Tipke za premikanje robota (oranžen okvir): s tipko COORD izberete tip koordinatnega sistema v katerem želite premikati robota, s tipkami potem robota premikate po posameznih oseh. Za premikanje robota morate najprej pritisniti varnostno tipko na spodnji strani učne enoto, izbrati tipko RESET. S tem prižgete motorje robota. Nato držite tipko SHIFT in s tipkami za premikanje robota premikate robota po izbrani osi.
+	\item Tipka MENU: z njo prikličete na zaslon glavni meni.
+	\item Tipka SHIFT.
+	\item Tipka RESET.
+	\item Tipka COORD: uporablja se za izbiro načina premikanje robota. Izbirate med načinom gibanja po:
+	\begin{itemize}
+		\item JOINT: gibanje po sklepih.
+		\item WORLD: gibanje po oseh baznega koordinatnega sistema.
+		\item TOOL: gibanje po oseh koordinatnega sistema izbranega orodja.
+		\item USER: gibanje po oseh uporabniškega koordinatnega sistema, običajno ga definiramo tako, da je vezan na enega od objektov v delovnem prostoru robota.
+		\item JGFRM: gibanje po oseh JOG FRAME koordinatnega sistema. JOG FRAME koordinaten sistem je poseben tip uporabniškega koordinatnega sistema, ki je definiran samo za gibanje, če se pojavi potreba, da moramo definirati koordinatni sistem, ki ga želimo uporabljati samo za gibanje. Privzeti koordinatni sistem je kar WORLD koordinatni sistem.
+	\end{itemize}
+	\item Tipki za spreminjanje hitrosti. Hitrosti je mogoče določati v procentih maksimalne hitrosti. Ko se pomaknete pod 1\% hitrosti, je naslednja nižja hitrost FINE, ki omogoča majhne inkrementalne pomike. Za FINE pomiki je še način VFINE, ki omogoča še manjše inkrementa pomika.
+	\item Smerne tipke (zelen okvir) za pomik po menijih in izbiro možnosti.
+	\item Tipki PREV in NEXT  za premikanje med nivoji oken.
+	\item Tipke TEACH (SELECT, EDIT, DATA; moder okvir) so tipke za urejanje programa.
+\end{itemize}
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.75\textwidth]{pendant_ew_switch.eps}
+	\caption{Prikaz glavnih varnostni stikal in tipk: tipka za izklop v sili, stikalo za izklop motorjev.}
+	\label{fig:pendant_ew_switch}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{iPendant.eps}
+	\caption{Učna ročna enota iPendant.}
+	\label{fig:iPendant}
+\end{figure}
+
+\newpage
+
+\subsection{Sistem za vijačenje}
+
+Sistem za vijačenje vključuje:
+\begin{itemize}
+	\item vijačnik KOLVER PLUTO 6CA (slika \ref{fig:kolver_vijacnik}),
+	\item kontrolna enota za vijačnik je KOLVER EDU 2AE/TOP (slika \ref{fig:kolver_krmilnik}),
+	\item varnostni mehanizem vijačnika,
+	\item podajalnik vijakov KOLVER NFK UNI (slika \ref{fig:kolver_podajalnik}),
+	\item podajalnik orodja (slika \ref{fig:podajalnik_orodja}).
+\end{itemize}
+
+CA družina KOLVER PLUTO vijačnikov je razvita za avtomatizirano vijačenje. Enosmerni motor omgoča navor med 0.85 do 6 Nm navora. Kontrolna enota za vijačnik je KOLVER EDU 2AE/TOP (https://kolver.it/products-list/8-Controllers-EDU-series) in je prikazana na sliki. Namen kontrolne enote je ustrezno napajanje vijačnika in nadzor nad ustreznim navorom za vijačenje. Na krmilniku se vnaprej določijo zahteve za vijačenje posameznega vijaka. Nato se proži program, ki ga potrebujemo. 
+
+Za dodatno varnost smo v Laboratoriju za robotiko razvili varnostni mehanizem vijačnika in v sistem vključili nadzorni PLC krmilnik Siemens. Nadzorni sistem se uporablja za vodenje varnostnega mehanizma in za nadzor delovanja robota ter krmilnika vijačnika.
+
+Zaradi vijačenja z različnimi nastavki smo v aplikacijo vključili tudi podajalnik orodja, ki smo ga načrtali v Laboratoriju za robotiko.
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.5\textwidth]{kolver_vijacnik.eps}
+	\caption{Vijačnik KOLVER PLUTO 6CA.}
+	\label{fig:kolver_vijacnik}
+\end{figure}
+
+\begin{figure}[!hbt]
+	\centering
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[width=1.0\textwidth]{kolver_krmilnik.eps}
+		\caption{kontrolna enota za vijačnik je KOLVER EDU 2AE/TOP}
+		\label{fig:kolver_krmilnik}
+	\end{minipage}\hfill
+	\begin{minipage}{0.45\textwidth}
+		\centering
+		\includegraphics[width=1.0\textwidth]{kolver_podajalnik.eps}
+		\caption{Osi robota 7iA.}
+		\label{fig:kolver_podajalnik}
+	\end{minipage}
+\end{figure}
+
+Podajalnik vijakov omogoča avtomatizirano podajanje vijakov vijačniku. Robot se mora z nameščenim vijačnikom pravilno približati podajalniku vijakov, nato se vijačnik vključi in pobere vijak, ki ga nato lahko privijači na želeno mesto. 
+
+Zaradi vijačenja z različnimi nastavki je v aplikacijo vključen tudi podajalnik orodja oziroma nastavka (slika \ref{fig:podajalnik_orodja}). Nastavki za vijačenje so obdani s primerno oblikovanimi tulci z utori za lažji prijem. Za prijem nastavka skrbi pnevmatsko prijemalo, ki je skupaj s prsti vgrajeno v podajalno mizo. Prsti so primerno oblikovani, da zagotovijo zanesljiv prijem tulcev. Menjava nastavka poteka tako, da se z vijačnikom pri nizkih vrtljajih približujemo k nastavku. Ko se po obliki nastavek ujame z magnetnim podaljškom na vijačniku, prijemalo popusti in orodje se fiksira v podaljšek. Robot se nato z vijačnikom umakne in varnostni mehanizem pokrije nastavek za vijačenje. 
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.55\textwidth]{podajalnik_orodja.eps}
+	\caption{Podajalnika orodja: 1 - orodje za vijačenje, 2 - tulec, 3 - stojalo za orodje, 4 - pnevmatsko prijemalo, 5 - prsti prijemala za zaklep tulcev.}
+	\label{fig:podajalnik_orodja}
+\end{figure}
+
+\newpage
+
+\subsection{Integracija sistema}
+
+Shema delovanja sistema je prikazana na sliki \ref{fig:shema_sistema}. Siemens krmilnik je centralna enota, ki skrbi za pravilno in varno delovanje celotnega sistema. Deluje kot nadzorni sistem. Krmilnik Fanuc je povezan s PLC krmilnikom povezan preko komunikacije Ethernet IP in preko digitalne varnostne vhodno-izhodne linije.  Robot je povezan tudi na podajalnik orodja, in sicer preko digitalnega izhoda. Varnostni mehanizem je povezan s krmilnikom PLC preko digitalne vhodno izhodne linije. Logika delovanja varnostnega mehanizma je na krmilniku PLC. To vključuje barvno osvetlitev in nadzor nad stanjem kontaktov v varnostnem mehanizmu.  Krmilnik vijačnika je prav tako povezan na nadzorni sistem preko digitalnih vhodno/izhodnih linij. Takšna vezava je smiselna zaradi varnosti pri vijačenju, saj je v nekaterih primerih ob ustavitvi robota treba zagotoviti, da se ustavi tudi vijačnik. Ob ponovnem zagonu pa je zaželeno, da se tudi vijačnik zažene nemoteno. S tem dosežemo, da je vijačenje zanesljivo, tudi če pridemo v kontakt z robotom med samim vijačenjem.
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.65\textwidth]{shema_sistema.eps}
+	\caption{Prikaz vezave celotnega sistema.}
+	\label{fig:shema_sistema}
+\end{figure}
+
+\subsubsection{Tehnika pobiranja vijakov}
+
+Glavna težava pri pobiranju vijakov je predvsem nezanesljiva lega in orientacija vijaka. Težava pa se pojavi tudi pri pobiranju vijakov z varnostnim mehanizmom, ki prekriva orodje. Težavo z varnostnim mehanizmom je rešena tako, da ga z distančnikom, ki je razviden iz slike \ref{fig:fanuc_sistem}, odmaknemo. Distančnik je primerno oblikovan, da omogoča pobiranje vijaka pod različnimi nakloni vijačnika. 
+
+Vijake se pobira z magnetnimi nastavki pod naklonom $80^{\circ}$. Pristop pobiranja je takšen, da robot v neposredni bližini glave vijaka pri velikih hitrostih vrtenja vijačnika počasi spušča orodje. Orientacija in lega vijaka se tako prilagodil legi orodja. Izkaže se namreč, da je takšen pristop manj občutljiv na lego vijaka.   
+
+\subsubsection{Tehnika vijačenja vijakov}
+Ko robot pobere vijak, se z vijačnikom postavi nad navojno izvrtino, v katero bo vijačil. Ko je vijačnik dovolj blizu, da operater ne more poseči med varnostni mehanizem in površino ($D = 5$ $mm$), v katero vijačimo, se varnostni sistem vijačnika izklopi. V tem trenutku varnostni sistem sveti rdeče. Zažene se vijačnik in se s primerno hitrostjo linearno približuje izvrtini. Tik preden je vijak v celoti privijačen, izklopimo sodelujoči način robota, da lahko na vijak delujemo z večjo silo. 
+
+Takoj, ko se vijačenje uspešno izvede, se sodelujoč način ponovno vključi. Vijačnik se umakne od točke vijačenja, nato pa se vključi tudi varnostni sistem vijačnika. Poudariti je treba, da je kljub izklopu sodelujočega načina programsko urejeno, da se robot ustavi, ko prekorači vnaprej določeno silo. V našem primeru je ta sila $60$ $N$. S tem preprečujemo, da bi lahko prišlo do mehanskih okvar v primeru, da se vijačenje ne bi uspešno izvedlo. 
+
+\newpage
+
+\section{Programiranje robota}
+
+\subsection{Ročno vodenje robota}
+
+Robota ročno vodimo s pomočjo ročne učne enote. 
+
+\begin{mdframed}[backgroundcolor=yellow!20, shadow=true,roundcorner=8pt]
+
+Za premikanje robota morate najprej pritisniti varnostno tipko na spodnji strani učne enoto (slika \ref{fig:enabl_device}), izbrati tipko RESET. S tem prižgete motorje robota. Nato držite tipko SHIFT in s tipkami za premikanje robota premikate robota po izbrani osi.
+
+\end{mdframed}
+
+\begin{mdframed}[backgroundcolor=yellow!20, shadow=true,roundcorner=8pt]
+	
+Trenutno lego robota preverite meniju Position. Do menija pridete preko tipke MENU, nato izberete 0 NEXT, sledi izbira menijske vrstice 5 4D GRAPHICS, ter nato 2 Position Display (glej sliko \ref{fig:menu_pos} (a)). Odpre se meni Position. V ukazni vrstici na dnu zaslona ((glej sliko \ref{fig:menu_pos} (b))) lahko izbirate med prikazi JNT (prikaz vrednosti v sklepih robota), USER (lega glede na izbrani uporabniški koordinatni sistem), WORLD (lega glede na koordinatni sistem robota).
+	
+\end{mdframed}
+
+\begin{figure}[!hbt]
+	\centering
+	\psfrag{a}[r][r][1.0][0]{(a)}
+	\psfrag{b}[r][r][1.0][0]{(b)}
+	\includegraphics[width=1.0\textwidth]{meni_pos.eps}
+	\caption{Dostop do prikaza lege robota.}
+	\label{fig:menu_pos}
+\end{figure}
+
+Za vodenje imamo na voljo več koordinatnih sistemov:
+
+\begin{itemize}
+	\item JOINT: gibanje po sklepih.
+	\item WORLD: gibanje po oseh baznega koordinatnega sistema.
+	\item TOOL: gibanje po oseh koordinatnega sistema izbranega orodja.
+	\item USER: gibanje po oseh uporabniškega koordinatnega sistema, običajno ga definiramo tako, da je vezan na enega od objektov v delovnem prostoru robota.
+	\item JGFRM: gibanje po oseh JOG FRAME koordinatnega sistema. JOG FRAME koordinaten sistem je poseben tip uporabniškega koordinatnega sistema, ki je definiran samo za gibanje, če se pojavi potreba, da moramo definirati koordinatni sistem, ki ga želimo uporabljati samo za gibanje. Privzeti koordinatni sistem je kar WORLD koordinatni sistem.
+\end{itemize} 
+
+S tipko COORD izberete tip koordinatnega sistema v katerem želite premikati robota, s tipkami za premikanje robota ga nato lahko premikate po posameznih oseh. 
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.5\textwidth]{enabl_device.eps}
+	\caption{Varnostno stikalo za vklop motorjev na učni enoti.}
+	\label{fig:enabl_device}
+\end{figure}
+
+\subsection{Kalibracija orodja}
+
+Kalibracijo orodja izvedete v meniju FRAMES, do katerega pridete preko tipke MENU, nato izberete meni 6 SETUP in podmeni 3 FRAMES. Meni potrdite s tipko ENTER. Odpre se okno FRAMES. V oknu Frames izberete gumb OTHER, ter nato 1 Tool Frame. Odpre se okno s seznamom orodij. Izberete orodje 9. Odpre se okno za kalibracijo orodja. Pod Comment mora biti izpisano ime \verb|Bela_spica|. Na dnu okna je menijska vrstica. S funkcijsko tipko najprej izberete gumb METHOD. Na zaslonu se odpre seznam načinov kalibracije (slika \ref{fig:calib_seznam}):
+
+\begin{itemize}
+	\item Three Point
+	\item Six Point (XZ)
+	\item Six Point (XY)
+	\item Two Point + Z
+	\item Four Point
+	\item Direct Entry
+\end{itemize}
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.5\textwidth]{IMG_20210827_115248.eps}
+	\caption{Okno za izbiro načinov kalibracije in rezultati kalibracije s 4 točkami za orodje {\em Bela\_spica}.}
+	\label{fig:calib_seznam}
+\end{figure}
+
+\subsubsection{Kalibracija Three Point in Four Point}
+
+Pri tej kalibraciji vrh orodja v 3 oziroma 4 različnih orientacijah premaknemo do kalibracijske špice (glej sliko \ref{fig:tool_3}). Krmilnik nato izračuna točko vrha orodja. Pri tem načinu kalibracije se določi le točka vrha orodja in ne tudi orientacija. Predlagamo izbiro kalibracije s 4 točkami, saj bo tako kalibracija bolj točna, ker bo imel krmilnik na voljo za izračun več podatkov (točk).
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.5\textwidth]{tool_calibration.eps}
+	\caption{Primer kalibracije s tremi točkami. Orodje postavimo v tri različne orientacije, pozicija vrha orodja relativno na kalibracijsko špico pa je ista.}
+	\label{fig:tool_3}
+\end{figure}
+
+Na zaslonu so izpisane točke za kalibracijo kot Approach point 1 do 4. Pri vsaki točki je zapisano UNINIT (un-initialized). S smernimi tipkami se pomaknemo na izbrano točko. Nato robota premaknemo tako, da se vrh orodja premakne do (in ne dotakne!) kalibracijske špice. Za varen pomik do točke uporabite najprej nizko hitrost ($5\%$ do $10\%$), ko ste blizu točke zmanjšajte hitrost na FINE. Ko ste z lego točke zadovoljni, izberete gumb RECORD. Pri točki se izpiše USED.
+
+\subsubsection{	Kalibracija Six Point (XZ)}
+Pri tej kalibraciji poleg vrha orodja določimo še orientacijo orodja. Poleg treh točk za določitev vrh orodja, so na voljo še tri točke s katerimi določimo x in z-os orodja.
+
+\subsubsection{Direct Entry}
+Z Direct Entry načinom lahko direktno vpišemo vrednosti koordinatnega sistema orodja. Kalibracijo orodja za nastavek za vijačenje (glej sliko \ref{fig:nastavek}) boste vpisali ročno, pri čemer si bomo pomagali s kalibracijo kalibracijske špice. Slika \ref{fig:orodje} prikazuje pozicijo vrha kalibracijske špice (črn krog) in nastavka za vijačenje (rdeč krog). Na sliki je prikazan koordinatni sistem vrha orodja (prirobnice), glede na katerega se določi kalibracijo orodja. Ker je nastavek skrit v ščitniku je kalibracija otežena, zato boste vpisali kalibracijo orodja na roko z metodo \verb|Direct Entry|.
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.5\textwidth]{nastavek.eps}
+	\caption{Nastavek za vijačenje, ki je sicer skrit v ščitniku nastavka.}
+	\label{fig:nastavek}
+\end{figure}
+
+\begin{figure}[!hbt]
+	\centering
+	\psfrag{tool}[r][r][1.2][0]{nastavek}
+	\psfrag{spike}[r][r][1.2][0]{kalibracijska špica}
+	\includegraphics[width=0.5\textwidth]{orodje.eps}
+	\caption{Slika prikazuje orodje s kalibracijsko špico. Vrh kalibracijske špice je označen s črnim krogom, rdeči krog pa označuje vrh nastavka za vijačenje, ki je skrit v ščitniku. Prikazan je koordinatni sistem prirobnice robota, glede na katerega je določena kalibracija orodja. S pomočjo kalibracije kalibracijske špice je mogoče določiti kalibracijo nastavka.}
+	\label{fig:orodje}
+\end{figure}
+
+Vrh nastavka v XY ravnini se nahaja v isti osi med središčem prirobnice in vrhom kalibracijske špice na razdalji 83 \% od centra prirobnice. S pomočjo tega podatka je mogoče določiti podatke za kalibracijo orodja nastavka. Slika \ref{fig:pod_nastavek} prikazuje podatke, ki jih vpišete za kalibracijo. 
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.5\textwidth]{pod_nastavek.eps}
+	\caption{Podatki za kalibracijo orodja nastavka za vijačenje.}
+	\label{fig:pod_nastavek}
+\end{figure}
+
+Kalibracijo orodja izvedete v meniju FRAMES, do katerega pridete preko tipke MENU, nato izberete meni 6 SETUP in podmeni 3 FRAMES. Meni potrdite s tipko ENTER. Odpre se okno FRAMES. V oknu Frames izberete gumb OTHER, ter nato 1 Tool Frame. Odpre se okno s seznamom orodij. Izberete orodje 9. Odpre se okno za kalibracijo orodja. Pod Comment mora biti izpisano ime \verb|Bela_spica|. Na dnu okna je menijska vrstica. S funkcijsko tipko najprej izberete gumb METHOD, nato \verb|Direct Entry|. Odpre se vam okno, kjer se pomaknete na mesta za vpi vrednosti, ki jih vpište s številčnico na učni enoti. Ko vpišete posamezno vrednost, jo potrdeite s tipko ENTER, nato pa se pomaknete na ostala mesta za vpi preostalih vrednosti. Ko končate z vpisom vseh vrednosti, se pomaknete nazaj v osnovni meni za orodja s tipko PREV.
+
+\newpage
+
+\subsection{Določitev uporabniškega koordinatnega sistema}
+Kalibracijo orodja izvedete v meniju FRAMES, do katerega pridete preko tipke MENU, nato izberete meni 6 SETUP in podmeni 3 FRAMES. Meni potrdite s tipko ENTER. Odpre se okno FRAMES. V oknu Frames izberete gumb OTHER, ter nato 3 User Frame. Odpre se okno s seznamom uporabniških koordinatnih sistemov. Z gumbom SETIND lahko izberete aktivni uporabniški koordinatni sistem. Izberete uporabniški koordinatni sistem 5.
+ 
+Z izbiro gumba METHODS se nam odpre meni z možnostmi za definicijo uporabniškega koordinatnega sistema:
+
+\begin{itemize}
+	\item Three Point,
+	\item Four Point,
+	\item Direct Entry.
+\end{itemize}
+
+Za kalibracijo uporabniškega koordinatnega sistema izberite možnost Three Point. S to opcijo določite tri točke:
+
+\begin{itemize}
+	\item Orient Origin Point: izhodišče uporabniškega koordinatnega sistema.
+	\item X Direction Point: točka na x-osi uporabniškega koordinatnega sistema.
+	\item Y Direction Point: točka na y-osi uporabniškega koordinatnega sistema.
+\end{itemize}
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.5\textwidth]{UF.eps}
+	\caption{Definicija uporabniškega koordinatnega sistema na obdelovancu. Na obdelovancu so nameščene tri kalibracijske špice (označene z rumenimi krogi). Vrh orodja je označen z oranžnim krogom. Smer koordinatnih osi je označena z rdečo puščico za x-os, ter z zeleno y-os.}
+	\label{fig:UFrame}
+\end{figure}
+
+S tem definirate uporabniški koordinatni sistem, ki ga aktivirate kot aktivnega z izbiro tipke PREV in nato z gumbom SETIND odprete možnost za vpis indeksa uporabniškega koordinatnega sistema. Nato preverite, če je definicija uporabniškega koordinatnega sitema uspela. Pojdite v prikaz za lego robota in izberite prikaz glede na uporabniški koordinatni sistem. Izberite tudi premik po oseh uporabniškega koordinatnega sistema z izbiro tipke COORD. Nato se pomaknite v smereh po X in Y smereh, da preverite, če se robot premika v smeri, ki se sklada z uporabniškim koordinatnim sistemom. Nato se pomaknite še nad prvo kalibracijsko špico in preverite če je pozicija robota okoli vrednosti $0$ $mm$. Slika \ref{fig:UF_kalib} prikazuje primer neuspešne in uspešne definicije orodja.
+
+
+\begin{figure}[!htb]
+	\centering
+	\psfrag{a}[r][r][1.2][0]{(a)}
+	\psfrag{b}[r][r][1.2][0]{(b)}
+	\includegraphics[width=0.5\textwidth]{UF_kalib.eps}
+	\caption{Primer (a) neuspešne in (b) uspešne definicije orodja.}
+	\label{fig:UF_kalib}
+\end{figure}
+
+
+
+\subsection{Pisanje programa}
+Napisali boste testni program z različnimi vrstami premikov robota v različne točke. Primer postavitve petih točk je prikazan na sliki \ref{fig:prog2}.
+
+\begin{itemize}
+	\item Točka P1: točka naj bo postavljena najvišje in nad delovnim objektom na katerem ste definirali uporabniški koordinatni sistem. V to točke se boste premaknili z ukazom za gibanje po sklepih.
+	\item Točka P2: Točka naj bo postavljena pod točko P1. V to točko se boste pomaknili z linearnim gibom, točka naj bo definirana v koordinatnem sistemu robota.
+	\item Točke P3, P4 in P5: Točke si postavljene $3-5$ $cm$ nad delovnim objektom v trikotni porazdelitvi in so definirane v uporabniškem koordinatnem sistemu.
+\end{itemize}
+
+\begin{figure}[!hbt]
+	\centering
+	\includegraphics[width=0.8\textwidth]{prog2.eps}
+	\caption{Primer razporeditve točk.}
+	\label{fig:prog2}
+\end{figure}
+
+Slika \ref{fig:prog2} z rdečimi puščicami prikazuje vrstni red premikov robota:
+
+\begin{enumerate}
+	\item premik: premik v točko P1 s premikom po sklepih.
+	\item premik: premik v točko P2 z linearnim premikom v koordinatnem sistemu robota.
+	\item premik: premik v točko P3 z linearnim premikom v uporabniškem koordinatnem sistemu.	
+	\item premik: premik v točko P4 z linearnim premikom v uporabniškem koordinatnem sistemu.	
+	\item premik: premik v točko P5 z linearnim premikom v uporabniškem koordinatnem sistemu.	
+	\item premik: premik v točko P2 z linearnim premikom v koordinatnem sistemu robota.	
+	\item premik: premik v točko P1 s premikom po sklepih.	
+\end{enumerate}	
+
+Najprej prekličite izbiro uporabniškega koordinatnega sistema, da bo točka shranjena v baznem koordinatnem sistemu robota.
+
+Program začnete pisati tako, da izberete tipko SELECT na ročni učni enoti. Odpre se seznam z ustvarjenimi programi in menijska vrstica na dnu, kjer lahko gumbe izbirate s funkcijskimi tipkami. Z izbiro gumba CREATE (tipka F2) ustvarite nov program. 
+
+Sedaj ustvarite testni program. Edina vrstica, ki se vam prikaže je vrstica \verb|[End]|, ki nakazuje konec programa (glej sliko \ref{fig:program}(a)). Ko se postavite na to vrstico in izberete nov ukaz, ga bo postavilo pred izbrano vrstico. Robot premaknete v želeno prvo točko, izberete ikono POINT, ki vam ponudi meni z možnostim za različne gibe (glej sliko \ref{fig:program}(b)). Izberete \verb|J P[] 100% FINE| možnost. Za naslednjo točko pomaknite robota po z-osi globalnga koordinatnega sistema navzdol in shranite novo točko kot točko 2. Izberete možnost \verb|L P[] 100mm/sec FINE|.
+
+Preverite, če je točka 2 res definirana v baznem koordinatnem sistemu robota. S smernimi tipkami na učni enoti se premaknite na indeks točke (glej sliko \ref{fig:program}(c)). Izberete ikono POSITION. Odpre se okno s podatki o točki (glej sliko \ref{fig:program}(d)). Slika \ref{fig:program}(e) prikazuje primer za točko 5. Za definiranje točk v uporabniškem koordinatnem sistemu je potrebno izbrati ustrezen uporabniški koordinatni sistem. Izberite uporabniški koordinatni sistem, ki ste ga definirali. Tipka MENU, 6  SETUP, 3 Frames. Odpre se novo okno, izberete ikono OTHER, nato 3  User Frame. Odpre se okno z uporabniškimi koordinatnimi sistemi SETUP Frames. Z izbiro ikone SETIND izberete indeks vašega uporabniškega koordinatnega sistema. Nato nadaljujete s pisanjem programa. Izberete tipko SELECT in vaš program. Premaknite se na vrstico [End] in nadaljujete z dodajanjem točk. 
+
+\begin{figure}[!hbt]
+	\centering
+	\psfrag{a}[c][c][1][0]{(a)}
+	\psfrag{b}[c][c][1][0]{(b)}		
+	\psfrag{c}[c][c][1][0]{(c)}
+	\psfrag{d}[c][c][1][0]{(d)}
+	\psfrag{e}[c][c][1][0]{(e)}	
+	\psfrag{f}[c][c][1][0]{(f)}			
+	\includegraphics[width=1.0\textwidth]{program.eps}
+	\caption{(a) Začetno okno za pisanje programa. (b) Izbira vrste giba. (c) Izbira indeksa točke za preverjanje v katerem koordinatnem sistemu je točka definirana. (d) Podatki za izbrano točko, ki je definirana v baznem koordinatnem sistemu robota. (e) Podatki za izbrano točko, ki je definirana v uporabniškem koordinatnem sistemu. (f) Program za premikanje po poti predstavljeni na sliki \ref{fig:prog2}.}
+	\label{fig:program}
+\end{figure}
+
+Na koncu dodajte novo točko, ki jo shranilo pod indeks 6. Če se premaknete na indeks in izberete tipko 2, boste zamenjali indeks točke. Končan program je prikazan na sliki \ref{fig:program}(f). Program testirate tako, da se pomaknete na prvo vrstico ter držite tipko SHIFT in FWD. Robot se bo premikal po izbranih vrsticah.

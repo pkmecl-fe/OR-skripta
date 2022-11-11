@@ -1,0 +1,355 @@
+% -*- TeX:SI -*-
+% slovene sub-mode for spell check
+
+%\Large\textbf
+\chapter{{Kratek pregled programiranja v Matlabu}}
+
+\vspace{-3.35cm}
+
+\begin{mdframed}[backgroundcolor=green!20, shadow=true,roundcorner=8pt]
+\vspace{-0.35cm}
+\section{Cilji poglavja}
+\begin{itemize}
+\item spoznati se z osnovnimi načini programiranja v Matlabu, ki jih boste potrebovali pri opravljanju vaj
+\end{itemize}
+\end{mdframed}
+
+
+\section{Uvod}
+
+V tem poglavju bo podan kratek pregled čez bistvene ukaze, ki jih boste potrebovali pri opravljanju vaj iz Osnov robotike. MATLAB je okrajšava za MATrix LABoratory in je bil v prvi verziji razvit za enostaven dostop do programskih knjižnjic LINPACK (linear system package) in EISPACK (Eigen system package). Danes pa je MATLAB visoko zmogljivo orodje za izračune v znanosti in tehniki, vendar ostaja še vedno najbolj popularen ravno zaradi enostavnosti izvajanja operacij nad vektorji in matrikami.
+
+\section{MATLAB kot kalkulator}
+
+Sicer precej nenavadno, vendar pa večina študentov, ko morajo izračunati kot ali zmnožiti dve števili, kljub temu, da imajo nekje v ozadju odprt MATLAB, iz torbe še vedno potegne svoj elektronski kalkulator ali pa zažene aplikacijo na svojem telefonu. Kljub kompleksnosti je MATLAB zelo uporaben tudi kot kalkulator. Brez razlage bomo podali nekaj primerov za ogrevanje:
+
+\begin{lstlisting} 
+1+2*3 %vpisemo numericni izracun
+ans =
+     7
+\end{lstlisting}
+
+
+
+\begin{lstlisting}
+x = 3+4*7
+x =
+    31
+2*x
+ans =
+    62
+    
+\end{lstlisting}
+
+
+
+\begin {table}[htb]
+\caption{Osnovne aritmetične operacije}
+\vspace{0.5cm}
+%\begin{center}
+\begin{tabular}{|c|l|}
+\hline   + &  seštevanje \\
+\hline   - &  odštevanje \\
+\hline   * &  množenje \\
+\hline   / &  deljenje \\
+\hline
+\end{tabular}
+%\end{center} \vspace{1cm}
+\end {table}
+
+\section{Dokumentacija za posamezne ukaze}
+
+Dokumentacija o ukazih je dostopna na več načinov. Poleg dokumentacije na internetu, ki je dostopna preko strani http://www.mathworks.com/help/matlab/, je najlažje do dokumentacije dostopati direktno iz ukaznega okna matlaba. Ukaz help izpiše opis ukaza direktno v matlab ukaznem oknu
+\begin{lstlisting}
+help sin
+ sin    Sine of argument in radians.
+    sin(X) is the sine of the elements of X.
+
+    See also asin, sind.
+    Overloaded methods:
+       codistributed/sin
+    Reference page in Help browser
+       doc sin
+\end{lstlisting}
+
+Ukaz doc odpre pomoč, ki vsebuje bolj podroben opis ukaza in več primerov uporabe.
+
+\begin{lstlisting}
+doc sin
+\end{lstlisting}
+
+\begin {table}[htb]
+\caption{Najpogostejše matematične funkcije}
+\vspace{0.5cm}
+%\begin{center}
+\begin{tabular}{|l|l|l|l|} \hline
+cos(x)	& kosinus	& abs(x)	& absolutna vrednost \\ \hline
+sin(x)	& sinus	& sign(x)	& predznak \\ \hline
+tan(x)	& tangens	& max(x)	& največja vrednost \\ \hline
+acos(x)	& arkus kosinus	& min(x)	& najmanjša vrednost \\ \hline
+asin(x)	& arkus sinus	& ceil(x)	& zaokroži navzgor \\ \hline
+atan2(y,x)	& arkus tangens	& floor(x)	& zaokroži navzdol \\ \hline
+exp(x)	& eksponentna funkcija	& round(x)	& zaokroži do najbližje cele številke \\ \hline
+sqrt(x)	& kvadratni koren	& pi	& število pi \\ \hline
+log(x)	& naravni logaritem	& Inf	& naskončno \\ \hline
+log10(x)	& logaritem z bazo 10	& NaN	& Not a number \\ \hline
+norm(x)	& dolžina vektorja	& sum(x)	& vsota elementov \\ \hline
+
+\end{tabular}
+%\end{center} \vspace{1cm}
+\end {table}
+
+\section{Izris signalov}
+
+Signale izrišemo s pomočjo ukaza \verb"plot(x,y)" oziroma \verb"plot(y)".
+
+\section{Delo z vektorji}
+
+Vektorji so lahko v matlabu vrstični
+\vspace{-0.5cm}
+\begin{lstlisting}
+a = [ 1 5 3 6 3 7 2 4]
+\end{lstlisting}
+\vspace{0.2cm}
+
+ali pa stolpični
+\vspace{-0.5cm}
+\begin{lstlisting}
+p = [-0.2; 1; 5]
+\end{lstlisting}
+\vspace{0.2cm}
+
+Do elementa vektorja p, ne glede na to ali je vektor stolpični ali vrstični, dostopamo na sledeči način
+\vspace{-0.5cm}
+\begin{lstlisting}
+p(st_elementa)
+\end{lstlisting}
+\vspace{0.2cm}
+
+Dolžino vektorja ugotovimo z ukazom length
+\vspace{-0.5cm}
+\begin{lstlisting}
+length(p)
+\end{lstlisting}
+\vspace{0.2cm}
+
+\section{Delo z matrikami}
+Do vrstice matrike dostopamo na sledeči način
+\vspace{-0.5cm}
+\begin{lstlisting}
+H(st_vrstice,:)
+\end{lstlisting}
+\vspace{0.2cm}
+
+Primer: dostopanje do druge vrstice
+
+\vspace{-0.5cm}
+\begin{lstlisting}
+H(2,:)
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+Do stolpca matrike dostopamo
+\vspace{-0.5cm}
+\begin{lstlisting}
+H(:,st_stolpca)
+\end{lstlisting}
+\vspace{0.2cm}
+
+Primer: dostopanje do tretjega stolpca
+\vspace{-0.5cm}
+\begin{lstlisting}
+H(:,3)
+\end{lstlisting}
+\vspace{0.2cm}
+
+Do elementa matrike dostopamo
+\vspace{-0.5cm}
+\begin{lstlisting}
+H(st_vrstice, st_stolpca)
+\end{lstlisting}
+\vspace{0.2cm}
+
+Primer: do elementa v tretji vrstici in drugem stolpcu dostopamo
+\vspace{-0.5cm}
+\begin{lstlisting}
+H(3, 2)
+\end{lstlisting}
+\vspace{0.2cm}
+
+\subsection{Ustvarjanje homogenih transformacijskih matrik}
+Poglejmo kako ustvarimo homogeno transformacijsko matriko, ki je sestavljena iz rotacijskega in pozicijskega dela.
+Ustvarimo enotsko matriko velikosti $4$
+\vspace{-0.5cm}
+\begin{lstlisting}
+H = eye(4)
+\end{lstlisting}
+\vspace{0.2cm}
+
+Ustvarimo 3x3 rotacijsko matriko rotacije okoli z osi
+\vspace{-0.5cm}
+\begin{lstlisting}
+alpha = 1
+R = [cos(alpha) -sin(alpha) 0; ...
+     sin(alpha)  cos(alpha) 0; ...
+              0           0 1]
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+Sedaj lahko matriko R zapišemo v matriko H
+\vspace{-0.5cm}
+\begin{lstlisting}
+H(1:3,1:3) = R
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+Ustvarimo stolpični vektor p
+\vspace{-0.5cm}
+\begin{lstlisting}
+p = [0.2; 0.15; -0.1]
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+Zapišemo stolpčni vektor v matriko H
+\vspace{-0.5cm}
+\begin{lstlisting}
+H(1:3,4) = p
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+Alternativa zgornjemu zapisu je tudi
+\vspace{-0.5cm}
+\begin{lstlisting}
+H = [R,p;[0 0 0 1]]
+\end{lstlisting}
+\vspace{0.2cm}
+
+\subsection{Nekater funkcije za delo z matrikami}
+
+Matriko ali vektor transponiramo z
+\vspace{-0.5cm}
+\begin{lstlisting}
+R'
+\end{lstlisting}
+\vspace{0.2cm}
+
+ali
+\vspace{-0.5cm}
+\begin{lstlisting}
+transpose(R)
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+Inverz matrike izračunamo z ukazom \verb"inv"
+\vspace{-0.5cm}
+\begin{lstlisting}
+inv(H)
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+Velikost matrike ugotovimo z ukazom \verb"size"
+\vspace{-0.5cm}
+\begin{lstlisting}
+size(H)
+\end{lstlisting}
+\vspace{0.2cm}
+
+Število vrstic matrike
+\vspace{-0.5cm}
+\begin{lstlisting}
+size(H, 1)
+\end{lstlisting}
+\vspace{0.2cm}
+
+Število stolpcev matrike
+\vspace{-0.5cm}
+\begin{lstlisting}
+size(H, 2)
+\end{lstlisting}
+\vspace{0.2cm}
+
+\section{Zanke in pogojni stavki}
+\subsection{for zanka}
+Primer for zanke, ki v vektor velikosti 12 zapisuje vrednosti
+\vspace{-0.5cm}
+\begin{lstlisting}
+for i=1:12
+	p(i) = (i-1)*3;
+end
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+Primer for zanke, ki v matriko velikosti A 5x7 zapisuje vrednosti
+\vspace{-0.5cm}
+\begin{lstlisting}
+for i = 1:5
+    for j = 1:7
+	   A(i,j) = j+(i-1)*5;
+    end
+end
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+\subsection{while zanka}
+
+Primer while zanke, ki teče dokler je spremenljivka manjša od a. Ko spremenljivka a postane enaka ali večja od b se zanka ustavi in program teče dalje.
+\vspace{-0.5cm}
+\begin{lstlisting}
+while (a<b)
+	%razlicne operacije z vrednostima a in b
+end
+\end{lstlisting}
+\vspace{0.2cm}
+
+\subsection{if stavek}
+
+\vspace{-0.5cm}
+\begin{lstlisting}
+if (pogoj)
+
+end
+\end{lstlisting}
+\vspace{0.2cm}
+
+Primer stavka, ki preveri, če ima vektor a dolžino tri, če je pogoj izpolnjen potem prvemu elementu vektorja a priredi vrednost 0.
+\vspace{-0.5cm}
+\begin{lstlisting}
+if (length(a) == 3)
+	a(1) = 0;
+end
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+\subsection{if-else stavek}
+
+\vspace{-0.5cm}
+\begin{lstlisting}
+if (pogoj1)
+
+elseif (pogoj2)
+
+elseif (pogoj3)
+
+else
+
+end
+\end{lstlisting}
+\vspace{0.2cm}
+
+
+
+
+
+
+
+			
